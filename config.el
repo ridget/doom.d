@@ -50,15 +50,6 @@
 (setq lsp-elixir-enable-test-lenses t)
 
 ;; Compile and test on save
-(setq alchemist-hooks-test-on-save t)
-(setq alchemist-hooks-compile-on-save t)
-
-;; Disable popup quitting for Elixir’s REPL
-;; Default behaviour of doom’s treating of Alchemist’s REPL window is to quit the
-;; REPL when ESC or q is pressed (in normal mode). It’s quite annoying so below
-;; code disables this and set’s the size of REPL’s window to 30% of editor frame’s
-;; height.
-(set-popup-rule! "^\\*Alchemist-IEx" :quit nil :size 0.3)
 
 ;; Do not select exunit-compilation window 
 (setq shackle-rules '(("*exunit-compilation*" :noselect t))
@@ -66,18 +57,18 @@
 
 ;; Set global LSP options
 (after! lsp-mode (
-setq lsp-lens-enable t
-lsp-ui-peek-enable t
-lsp-ui-doc-enable nil
-lsp-ui-doc-position 'bottom
-lsp-ui-doc-max-height 70
-lsp-ui-doc-max-width 150
-lsp-ui-sideline-show-diagnostics t
-lsp-ui-sideline-show-hover nil
-lsp-ui-sideline-show-code-actions t
-lsp-ui-sideline-diagnostic-max-lines 20
-lsp-ui-sideline-ignore-duplicate t
-lsp-ui-sideline-enable t))
+                  setq lsp-lens-enable t
+                  lsp-ui-peek-enable t
+                  lsp-ui-doc-enable nil
+                  lsp-ui-doc-position 'bottom
+                  lsp-ui-doc-max-height 70
+                  lsp-ui-doc-max-width 150
+                  lsp-ui-sideline-show-diagnostics t
+                  lsp-ui-sideline-show-hover nil
+                  lsp-ui-sideline-show-code-actions t
+                  lsp-ui-sideline-diagnostic-max-lines 20
+                  lsp-ui-sideline-ignore-duplicate t
+                  lsp-ui-sideline-enable t))
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -134,7 +125,50 @@ lsp-ui-sideline-enable t))
       )
 
 
+(setq lsp-elixir-suggest-specs nil)
+(setq lsp-elixir-dialyzer-enabled t)
 
-;; ensure alchemist mode is up and running for elixir files
-(add-hook 'elixir-mode-hook #'alchemist-mode)
-;; (setq alchemist-key-command-prefix (kbd doom-localleader-key))
+;; ensure we can use emmet in heex
+(add-hook 'elixir-mode-hook #'emmet-mode)
+(add-hook 'web-mode-hook #'emmet-mode)
+
+(use-package! lsp-tailwindcss :after lsp-mode)
+(use-package! lsp-tailwindcss :after elixir-mode)
+(use-package! lsp-tailwindcss :after web-mode)
+
+
+
+(after! lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(".*\\.heex$" . "html"))
+  )
+
+
+;; set root projects dir
+(setq projectile-project-search-path '(("~/projects/" . 2)))
+
+(map! :mode web-mode
+      :i "<tab>" #'+web/indent-or-yas-or-emmet-expand)
+
+(setq user-full-name "Tom Ridge"
+      user-mail-address "tomridge2@gmail.com")
+
+;; allows for syntax highlighting of inline live views
+
+(use-package polymode
+  :mode ("\.ex$" . poly-elixir-web-mode)
+  :config
+  (define-hostmode poly-elixir-hostmode :mode 'elixir-mode)
+  (define-innermode poly-liveview-expr-elixir-innermode
+    :mode 'web-mode
+    :head-matcher (rx line-start (* space) "~H" (= 3 (char "\"'")) line-end)
+    :tail-matcher (rx line-start (* space) (= 3 (char "\"'")) line-end)
+    :head-mode 'host
+    :tail-mode 'host
+    :allow-nested nil
+    :keep-in-mode 'host
+    :fallback-mode 'host)
+  (define-polymode poly-elixir-web-mode
+    :hostmode 'poly-elixir-hostmode
+    :innermodes '(poly-liveview-expr-elixir-innermode))
+  )
+(setq web-mode-engines-alist '(("elixir" . "\\.ex\\'")))
