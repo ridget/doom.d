@@ -1,107 +1,67 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
+;; ---------------------------------------------------------------------------
+;; PERSONAL IDENTITY & VISUALS
+;; ---------------------------------------------------------------------------
+(setq user-full-name "Tom Ridge"
+      user-mail-address "tomridge2@gmail.com")
 
-
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets. It is optional.
-;; (setq user-full-name "John Doe"
-;;       user-mail-address "john@doe.com")
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;; - `doom-symbol-font' -- for symbols
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
-;;
-;; See 'C-h v doom-font' for documentation and more examples of what they
-;; accept. For example:
-;;
-;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
-;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-;;
-;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
-;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
-;; refresh your font settings. If Emacs still can't find your font, it likely
-;; wasn't installed correctly. Font issues are rarely Doom issues!
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one)
-
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
-
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
-;; Configure elixir-lsp
-;; replace t with nil to disable.
-(setq lsp-elixir-fetch-deps nil)
-(setq lsp-elixir-suggest-specs t)
-(setq lsp-elixir-signature-after-complete t)
-(setq lsp-elixir-enable-test-lenses t)
+;; Set Font size
+(setq doom-font (font-spec :family "Fira Code" :size 14)
+      doom-big-font (font-spec :family "Fira Code" :size 24)
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 16))
 
-;; Compile and test on save
+;; Performance tweaks for bidirectional text
+(setq-default bidi-display-reordering nil
+              bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+;; ---------------------------------------------------------------------------
+;; PROJECTILE
+;; ---------------------------------------------------------------------------
+(setq projectile-project-search-path '(("~/projects/" . 2))
+      projectile-auto-update-cache t
+      projectile-indexing-method 'hybrid)
 
-;; Do not select exunit-compilation window 
-(setq shackle-rules '(("*exunit-compilation*" :noselect t))
-      shackle-default-rule '(:select t))
+;; ---------------------------------------------------------------------------
+;; GLOBAL LSP CONFIGURATION (General UI & Performance)
+;; ---------------------------------------------------------------------------
+(after! lsp-mode
+  (setq lsp-lens-enable t
+        lsp-ui-peek-enable t
+        lsp-ui-doc-enable nil
+        lsp-ui-doc-position 'bottom
+        lsp-ui-doc-max-height 70
+        lsp-ui-doc-max-width 150
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-diagnostic-max-lines 20
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-sideline-enable t)
 
-;; Set global LSP options
-(after! lsp-mode (
-                  setq lsp-lens-enable t
-                  lsp-ui-peek-enable t
-                  lsp-ui-doc-enable nil
-                  lsp-ui-doc-position 'bottom
-                  lsp-ui-doc-max-height 70
-                  lsp-ui-doc-max-width 150
-                  lsp-ui-sideline-show-diagnostics t
-                  lsp-ui-sideline-show-hover nil
-                  lsp-ui-sideline-show-code-actions t
-                  lsp-ui-sideline-diagnostic-max-lines 20
-                  lsp-ui-sideline-ignore-duplicate t
-                  lsp-ui-sideline-enable t))
+  (setq lsp-file-watch-ignored
+        '(".idea" ".ensime_cache" ".eunit" "node_modules"
+          ".git" ".hg" ".fslckout" "_FOSSIL_"
+          ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
+          "build" "_build" "deps" "postgres-data")))
 
+;; ---------------------------------------------------------------------------
+;; ELIXIR & HEEX CONFIGURATION
+;; ---------------------------------------------------------------------------
 
-;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
-;;
-;;   (after! PACKAGE
-;;     (setq x y))
-;;
-;; The exceptions to this rule:
-;;
-;;   - Setting file/directory variables (like `org-directory')
-;;   - Setting variables which explicitly tell you to set them before their
-;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-;;   - Setting doom variables (which start with 'doom-' or '+').
-;;
-;; Here are some additional functions/macros that will help you configure Doom.
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; etc).
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
+;; Enable LSP for Elixir and HEEx Tree-sitter modes
+(add-hook 'elixir-ts-mode-hook #'lsp-deferred)
+(add-hook 'heex-ts-mode-hook #'lsp-deferred)
+
+;; ElixirLS Specific Settings
+(setq lsp-elixir-suggest-specs t
+      lsp-elixir-dialyzer-enabled t
+      lsp-elixir-signature-after-complete t
+      lsp-elixir-enable-test-lenses t)
 
 ;; Workaround to enable running credo after lsp
 (defvar-local my/flycheck-local-cache nil)
@@ -109,66 +69,129 @@
   (or (alist-get property (alist-get checker my/flycheck-local-cache))
       (funcall fn checker property)))
 (advice-add 'flycheck-checker-get :around 'my/flycheck-checker-get)
+
 (add-hook 'lsp-managed-mode-hook
           (lambda ()
-            (when (derived-mode-p 'elixir-mode)
-              (setq my/flycheck-local-cache '((lsp . ((next-checkers . (elixir-credo)))))))
-            ))
+            (when (derived-mode-p 'elixir-mode 'elixir-ts-mode)
+              (setq my/flycheck-local-cache '((lsp . ((next-checkers . (elixir-credo)))))))))
 
+;; Fix duplicate "end" insertion in all Elixir modes
+(after! smartparens
+  (dolist (mode '(elixir-mode elixir-ts-mode))
+    (sp-local-pair mode "for" "end" :actions nil)
+    (sp-local-pair mode "if" "end" :actions nil)
+    (sp-local-pair mode "case" "end" :actions nil)
+    (sp-local-pair mode "cond" "end" :actions nil)
+    (sp-local-pair mode "unless" "end" :actions nil)
+    (sp-local-pair mode "with" "end" :actions nil)
+    (sp-local-pair mode "try" "end" :actions nil)
+    (sp-local-pair mode "fn" "end" :actions nil)
+    (sp-local-pair mode "do" "end" :actions nil)
+    (sp-local-pair mode "def" "end" :actions nil)
+    (sp-local-pair mode "defp" "end" :actions nil)
+    (sp-local-pair mode "defmodule" "end" :actions nil)
+    (sp-local-pair mode "defimpl" "end" :actions nil)))
 
-;; ignore some files for lsp
-(setq lsp-file-watch-ignored
-      '(".idea" ".ensime_cache" ".eunit" "node_modules"
-        ".git" ".hg" ".fslckout" "_FOSSIL_"
-        ".bzr" "_darcs" ".tox" ".svn" ".stack-work"
-        "build" "_build" "deps" "postgres-data")
-      )
+;; ---------------------------------------------------------------------------
+;; WEB, TAILWIND & EMMET
+;; ---------------------------------------------------------------------------
+(use-package! lsp-tailwindcss
+  :init (setq lsp-tailwindcss-add-on-mode t))
 
+(after! web-mode
+  (setq web-mode-enable-auto-pairing t
+        web-mode-enable-css-colorization t
+        web-mode-engines-alist nil))
 
-(setq lsp-elixir-suggest-specs nil)
-(setq lsp-elixir-dialyzer-enabled t)
-
-;; ensure we can use emmet in heex
-(add-hook 'elixir-mode-hook #'emmet-mode)
-(add-hook 'web-mode-hook #'emmet-mode)
-
-(use-package! lsp-tailwindcss :after lsp-mode)
-(use-package! lsp-tailwindcss :after elixir-mode)
-(use-package! lsp-tailwindcss :after web-mode)
-
-
-
-(after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration '(".*\\.heex$" . "html"))
-  )
-
-
-;; set root projects dir
-(setq projectile-project-search-path '(("~/projects/" . 2)))
-
-(map! :mode web-mode
-      :i "<tab>" #'+web/indent-or-yas-or-emmet-expand)
-
-(setq user-full-name "Tom Ridge"
-      user-mail-address "tomridge2@gmail.com")
-
-;; allows for syntax highlighting of inline live views
-
-(use-package polymode
-  :mode ("\.ex$" . poly-elixir-web-mode)
+(use-package! emmet-mode
+  :hook (elixir-ts-mode . emmet-mode)
   :config
-  (define-hostmode poly-elixir-hostmode :mode 'elixir-mode)
-  (define-innermode poly-liveview-expr-elixir-innermode
-    :mode 'web-mode
-    :head-matcher (rx line-start (* space) "~H" (= 3 (char "\"'")) line-end)
-    :tail-matcher (rx line-start (* space) (= 3 (char "\"'")) line-end)
-    :head-mode 'host
-    :tail-mode 'host
-    :allow-nested nil
-    :keep-in-mode 'host
-    :fallback-mode 'host)
-  (define-polymode poly-elixir-web-mode
-    :hostmode 'poly-elixir-hostmode
-    :innermodes '(poly-liveview-expr-elixir-innermode))
-  )
-(setq web-mode-engines-alist '(("elixir" . "\\.ex\\'")))
+  (add-to-list 'emmet-jsx-major-modes 'elixir-ts-mode)
+  (setq emmet-expand-jsx-className? nil
+        emmet-move-cursor-between-quotes t))
+
+;; Emmet: Replace className with class in Elixir files
+(defadvice! +emmet-elixir-classname-to-class-a (fn &rest args)
+  :around #'emmet-make-html-tag
+  (let ((result (apply fn args)))
+    (if (derived-mode-p 'elixir-ts-mode)
+        (replace-regexp-in-string " className=" " class=" result)
+      result)))
+
+(after! elixir-ts-mode
+  (set-company-backend! 'elixir-ts-mode
+    '(:separate company-emmet company-yasnippet company-capf))
+  ;; Bind TAB to indent/expand
+  (map! :map elixir-ts-mode-map
+        :i [tab] #'+web/indent-or-yas-or-emmet-expand
+        :i "TAB" #'+web/indent-or-yas-or-emmet-expand))
+
+;; ---------------------------------------------------------------------------
+;; TREE-SITTER TEXT OBJECTS & EVIL
+;; ---------------------------------------------------------------------------
+(require 'treesit)
+(global-evil-matchit-mode 1)
+
+;; Define Elixir "do...end" block selection
+(defun +elixir/inner-do-block (count &optional beg end type)
+  "Select the inner content of an Elixir do...end block."
+  (interactive "p")
+  (when-let* ((node (treesit-node-at (point)))
+              (do-node (treesit-parent-until node (lambda (n) (equal (treesit-node-type n) "do_block")))))
+    (let* ((children (treesit-node-children do-node))
+           (start (treesit-node-end (car children)))
+           (end (treesit-node-start (car (last children)))))
+      (evil-range start end))))
+
+(defun +elixir/outer-do-block (count &optional beg end type)
+  "Select the entire Elixir do...end block."
+  (interactive "p")
+  (when-let* ((node (treesit-node-at (point)))
+              (do-node (treesit-parent-until node (lambda (n) (equal (treesit-node-type n) "do_block")))))
+    (evil-range (treesit-node-start do-node) (treesit-node-end do-node))))
+
+;; Bindings for Elixir blocks and generic Tree-sitter calls
+(after! elixir-ts-mode
+  (map! :map elixir-ts-mode-map :textobj "b" #'+elixir/inner-do-block #'+elixir/outer-do-block)
+  (define-key evil-inner-text-objects-map "b" #'+elixir/inner-do-block)
+  (define-key evil-outer-text-objects-map "b" #'+elixir/outer-do-block))
+
+(after! evil-textobj-tree-sitter
+  (define-key evil-inner-text-objects-map "g" (evil-textobj-tree-sitter-get-textobj "call.outer"))
+  (define-key evil-outer-text-objects-map "g" (evil-textobj-tree-sitter-get-textobj "call.outer")))
+
+;; ---------------------------------------------------------------------------
+;; OTHER LANGUAGES
+;; ---------------------------------------------------------------------------
+(setq org-babel-python-command "python3")
+
+
+;; roblox luau
+;; (after! projectile
+;;   (projectile-register-project-type 'roblox-luau 
+;;                                     '("default.project.json") 
+;;                                     :project-file "default.project.json"
+;;                                     :compile "lune run build"
+;;                                     :test "lune run test"
+;;                                     ;; Changed :run to :run-command for compatibility
+;;                                     :run-command "rojo serve"
+;;                                     :src-dir "src/"))
+
+(use-package! eglot-luau
+  :after eglot
+  :init
+  (setq eglot-luau-rojo-sourcemap-enabled t
+        eglot-luau-rojo-sourcemap-includes-non-scripts t
+        eglot-luau-auto-update-roblox-docs t
+        eglot-luau-auto-update-roblox-types t
+        eglot-luau-fflag-overrides '(("LuauSolverV2" "True")))
+  :hook
+  (lua-mode . eglot-luau-setup)
+  (lua-mode . eglot-ensure))
+
+
+(add-to-list 'auto-mode-alist '("\\.luau\\'" . lua-mode))
+
+;; (use-package! mise
+;;   :config
+;;   (add-hook 'after-init-hook #'global-mise-mode))

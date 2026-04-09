@@ -50,4 +50,9 @@
 
 (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 (package! pbcopy)
-(package! polymode)
+(package! evil-matchit)
+(package! eglot-luau
+  :recipe (:host github :repo "kennethloeffler/eglot-luau" :protocol ssh))
+(package! mise)
+;; (package! polymode)
+;; (package! mmm-mode)
